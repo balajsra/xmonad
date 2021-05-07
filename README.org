@@ -2,8 +2,7 @@
 #+author: Sravan Balaji
 #+PROPERTY: header-args:haskell :tangle ./xmonad.hs
 
-* Sravan's Xmonad Configuration
-** Welcome
+* Welcome
 
   My personal configuration of Xmonad, written as an [[https://orgmode.org][Org Mode]] document.
 
@@ -31,7 +30,7 @@ The preferred terminal program, which is used in a binding below and by
 certain contrib modules.
 
 #+begin_src haskell
-  myTerminal      = "xterm"
+  myTerminal      = "kitty"
 #+end_src
 
 * Window Behavior & Appearance

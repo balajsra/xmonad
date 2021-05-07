@@ -5,7 +5,7 @@ import System.Exit
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
-myTerminal      = "xterm"
+myTerminal      = "kitty"
 
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
