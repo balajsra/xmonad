@@ -22,6 +22,14 @@
 
   import qualified XMonad.StackSet as W
   import qualified Data.Map        as M
+
+  -- needed for `spawnPipe`
+  import XMonad.Util.Run
+
+  -- needed for managing dock type programs like xmobar
+  import XMonad.Hooks.ManageDocks
+
+  import XMonad.Util.SpawnOnce
 #+end_src
 
 * Terminal
@@ -80,7 +88,7 @@ A tagging example:
 > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 
 #+begin_src haskell
-  myWorkspaces    = ["1","2","3","4","5","6","7","8","9"]
+  myWorkspaces    = ["\f868\2081", "2", "3", "4", "5", "6", "7", "8", "9"]
 #+end_src 
 
 * Keybindings
@@ -104,8 +112,11 @@ is mod1Mask ("left alt").  You may also consider using mod3Mask
       -- launch a terminal
       [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
-      -- launch rofi
+      -- launch rofi drun
       , ((modm,               xK_p     ), spawn "rofi -show drun")
+
+      -- launch rofi clipboard
+      , ((modm,               xK_c     ), spawn "rofi -show clipboard")
 
       -- close focused window
       , ((modm .|. shiftMask, xK_c     ), kill)
@@ -240,7 +251,7 @@ which denotes layout choice.
   #+end_src
 
   #+begin_src haskell
-    myLayout = tiled ||| Mirror tiled ||| Full
+    myLayout = avoidStruts (tiled ||| Mirror tiled ||| Full)
       where
          -- default tiling algorithm partitions the screen into two panes
          tiled   = Tall nmaster delta ratio
@@ -308,7 +319,7 @@ See the 'XMonad.Hooks.DynamicLog' extension for examples.
 
   *Example*
 #+begin_src haskell :tangle no
-  import Xmonad.Util.SpawnOnce
+  import XMonad.Util.SpawnOnce
 
   myStartupHook = do
     spawnOnce "nitrogen --restore &"
@@ -318,7 +329,9 @@ See the 'XMonad.Hooks.DynamicLog' extension for examples.
   By default, do nothing.
 
 #+begin_src haskell
-  myStartupHook = return ()
+  myStartupHook = do
+    spawnOnce "nitrogen --restore &"
+    spawnOnce "picom  &"
 #+end_src
 
 ** Run
@@ -327,23 +340,12 @@ Now run xmonad with all the defaults we set up.
 
 Run xmonad with the settings you specify. No need to modify this.
 
-*Example With Xmobar*
-#+begin_src haskell :tangle no
-  -- needed for `spawnPipe`
-  import XMonad.Util.Run
-
-  -- needed for managing dock type programs like xmobar
-  import XMonad.Hooks.ManageDocks
-
+#+begin_src haskell
   main = do
     -- `xmobar -x 0` launches the bar on monitor 0
-    xmproc <- spawnPipe "xmobar -x 0 /home/sravan/.config/xmobar/xmobar.config"
+    xmproc <- spawnPipe "xmobar -x 0 /home/sravan/.xmonad/xmobar.config"
     -- launches xmobar as a dock
     xmonad $ docks defaults
-#+end_src
-
-#+begin_src haskell
-  main = xmonad defaults
 #+end_src 
 
 ** Configuration Settings
@@ -433,4 +435,27 @@ Finally, a copy of the default bindings in simple textual tabular format.
       "mod-button1  Set the window to floating mode and move by dragging",
       "mod-button2  Raise the window to the top of the stack",
       "mod-button3  Set the window to floating mode and resize by dragging"]
+#+end_src
+
+* Xmobar
+
+#+begin_src haskell :tangle ./xmobar.config
+  Config { font = "xft:FiraCode Nerd Font Mono:pixelsize=12:antialias=true:hinting=true"
+         , bgColor = "black"
+         , fgColor = "grey"
+         , position = Top
+         , lowerOnStart = True
+         , commands = [ Run Weather "EGPF" ["-t","<station>: <tempC>C","-L","18","-H","25","--normal","green","--high","red","--low","lightblue"] 36000
+                      , Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 10
+                      , Run Network "eth1" ["-L","0","-H","32","--normal","green","--high","red"] 10
+                      , Run Cpu ["-L","3","-H","50","--normal","green","--high","red"] 10
+                      , Run Memory ["-t","Mem: <usedratio>%"] 10
+                      , Run Swap [] 10
+                      , Run Com "uname" ["-s","-r"] "" 36000
+                      , Run Date "%a %b %_d %Y %H:%M:%S" "date" 10
+                      ]
+         , sepChar = "%"
+         , alignSep = "}{"
+         , template = "%cpu% | %memory% * %swap% | %eth0% - %eth1% }{ <fc=#ee9a00>%date%</fc>| %EGPF% | %uname%"
+         }
 #+end_src

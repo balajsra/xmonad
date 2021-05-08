@@ -5,6 +5,14 @@ import System.Exit
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
+-- needed for `spawnPipe`
+import XMonad.Util.Run
+
+-- needed for managing dock type programs like xmobar
+import XMonad.Hooks.ManageDocks
+
+import XMonad.Util.SpawnOnce
+
 myTerminal      = "kitty"
 
 myFocusFollowsMouse :: Bool
@@ -18,7 +26,7 @@ myBorderWidth   = 2
 myNormalBorderColor  = "#4D4D4D"
 myFocusedBorderColor = "#BD93F9"
 
-myWorkspaces    = ["1","2","3","4","5","6","7","8","9"]
+myWorkspaces    = ["\f868\2081", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 myModMask       = mod4Mask
 
@@ -27,8 +35,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch a terminal
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
-    -- launch rofi
+    -- launch rofi drun
     , ((modm,               xK_p     ), spawn "rofi -show drun")
+
+    -- launch rofi clipboard
+    , ((modm,               xK_c     ), spawn "rofi -show clipboard")
 
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
@@ -128,7 +139,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     -- you may also bind events to the mouse scroll wheel (button4 and button5)
     ]
 
-myLayout = tiled ||| Mirror tiled ||| Full
+myLayout = avoidStruts (tiled ||| Mirror tiled ||| Full)
   where
      -- default tiling algorithm partitions the screen into two panes
      tiled   = Tall nmaster delta ratio
@@ -152,9 +163,15 @@ myEventHook = mempty
 
 myLogHook = return ()
 
-myStartupHook = return ()
+myStartupHook = do
+  spawnOnce "nitrogen --restore &"
+  spawnOnce "picom  &"
 
-main = xmonad defaults
+main = do
+  -- `xmobar -x 0` launches the bar on monitor 0
+  xmproc <- spawnPipe "xmobar -x 0 /home/sravan/.xmonad/xmobar.config"
+  -- launches xmobar as a dock
+  xmonad $ docks defaults
 
 defaults = def {
       -- simple stuff
