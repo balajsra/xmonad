@@ -1,17 +1,19 @@
 import XMonad
-import Data.Monoid
-import System.Exit
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
--- needed for `spawnPipe`
-import XMonad.Util.Run
+import Data.Monoid
 
--- needed for managing dock type programs like xmobar
-import XMonad.Hooks.ManageDocks
-
+import XMonad.Util.Run -- spawnPipe
 import XMonad.Util.SpawnOnce
+import XMonad.Util.EZConfig
+
+import XMonad.Hooks.ManageDocks -- manage dock type programs like xmobar
+import XMonad.Hooks.DynamicLog
+
+import System.IO
+import System.Exit
 
 myTerminal      = "kitty"
 
@@ -156,7 +158,7 @@ myManageHook = composeAll
 
 myEventHook = mempty
 
-myLogHook = return ()
+-- myLogHook = return ()
 
 myStartupHook = do
   spawnOnce "nitrogen --restore &"
@@ -166,10 +168,8 @@ main = do
   -- `xmobar -x 0` launches the bar on monitor 0
   xmproc <- spawnPipe "xmobar -x 0 /home/sravan/.xmonad/xmobar.config"
   -- launches xmobar as a dock
-  xmonad $ docks defaults
-
-defaults = def {
-      -- simple stuff
+  xmonad $ docks defaultConfig
+    { -- simple stuff
         terminal           = myTerminal,
         focusFollowsMouse  = myFocusFollowsMouse,
         clickJustFocuses   = myClickJustFocuses,
@@ -187,7 +187,10 @@ defaults = def {
         layoutHook         = myLayout,
         manageHook         = myManageHook,
         handleEventHook    = myEventHook,
-        logHook            = myLogHook,
+        logHook            = dynamicLogWithPP xmobarPP
+                             { ppOutput = hPutStrLn xmproc
+                             , ppTitle = xmobarColor "green" "" . shorten 50
+                             },
         startupHook        = myStartupHook
     }
 

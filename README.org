@@ -18,19 +18,21 @@
 
 #+begin_src haskell
   import XMonad
-  import Data.Monoid
-  import System.Exit
 
   import qualified XMonad.StackSet as W
   import qualified Data.Map        as M
 
-  -- needed for `spawnPipe`
-  import XMonad.Util.Run
+  import Data.Monoid
 
-  -- needed for managing dock type programs like xmobar
-  import XMonad.Hooks.ManageDocks
-
+  import XMonad.Util.Run -- spawnPipe
   import XMonad.Util.SpawnOnce
+  import XMonad.Util.EZConfig
+
+  import XMonad.Hooks.ManageDocks -- manage dock type programs like xmobar
+  import XMonad.Hooks.DynamicLog
+
+  import System.IO
+  import System.Exit
 #+end_src
 
 * Terminal
@@ -301,10 +303,10 @@ which denotes layout choice.
 * Status Bars & Logging
 
 Perform an arbitrary action on each internal state change or X event.
-See the 'XMonad.Hooks.DynamicLog' extension for examples.
+See the ~XMonad.Hooks.DynamicLog~ extension for examples.
 
 #+begin_src haskell
-  myLogHook = return ()
+  -- myLogHook = return ()
 #+end_src
 
 * Startup 
@@ -332,7 +334,7 @@ See the 'XMonad.Hooks.DynamicLog' extension for examples.
     spawnOnce "picom  &"
 #+end_src
 
-** Run
+** Main
 
 Now run xmonad with all the defaults we set up.
 
@@ -343,20 +345,8 @@ Run xmonad with the settings you specify. No need to modify this.
     -- `xmobar -x 0` launches the bar on monitor 0
     xmproc <- spawnPipe "xmobar -x 0 /home/sravan/.xmonad/xmobar.config"
     -- launches xmobar as a dock
-    xmonad $ docks defaults
-#+end_src 
-
-** Configuration Settings
-
-A structure containing your configuration settings, overriding
-fields in the default config. Any you don't override, will
-use the defaults defined in xmonad/XMonad/Config.hs
-
-No need to modify this.
-
-#+begin_src haskell
-  defaults = def {
-        -- simple stuff
+    xmonad $ docks defaultConfig
+      { -- simple stuff
           terminal           = myTerminal,
           focusFollowsMouse  = myFocusFollowsMouse,
           clickJustFocuses   = myClickJustFocuses,
@@ -374,10 +364,13 @@ No need to modify this.
           layoutHook         = myLayout,
           manageHook         = myManageHook,
           handleEventHook    = myEventHook,
-          logHook            = myLogHook,
+          logHook            = dynamicLogWithPP xmobarPP
+                               { ppOutput = hPutStrLn xmproc
+                               , ppTitle = xmobarColor "green" "" . shorten 50
+                               },
           startupHook        = myStartupHook
       }
-#+end_src
+#+end_src 
 
 ** Default Keybindings Reference
 
@@ -442,22 +435,21 @@ Finally, a copy of the default bindings in simple textual tabular format.
          , bgColor = "black"
          , fgColor = "white"
          , position = Top
-         -- , lowerOnStart = True
-         -- , hideOnStart = False
-         -- , allDesktop = True
-         -- , persistent = True
-         , commands = [ Run Weather "KARB" ["-t","<station>: <tempF>F","-L","18","-H","25","--normal","green","--high","red","--low","lightblue"] 36000
-                      , Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 10
-                      , Run Network "eth1" ["-L","0","-H","32","--normal","green","--high","red"] 10
+         , lowerOnStart = True
+         , hideOnStart = False
+         , allDesktops = True
+         , persistent = True
+         , commands = [ Run Weather "K7D2" ["-t","<station>: <tempF>F","-L","18","-H","25","--normal","green","--high","red","--low","lightblue"] 36000
                       , Run Network "wlp0s20f3" ["-L","0","-H","32","--normal","green","--high","red"] 10
                       , Run Cpu ["-L","3","-H","50","--normal","green","--high","red"] 10
                       , Run Memory ["-t","Mem: <usedratio>%"] 10
                       , Run Swap [] 10
                       , Run Com "uname" ["-s","-r"] "" 36000
                       , Run Date "%a %b %_d %Y %H:%M:%S" "date" 10
+                      , Run StdinReader
                       ]
          , sepChar = "%"
          , alignSep = "}{"
-         , template = "%cpu% | %memory% * %swap% | %wlp0s20f3% }{ <fc=#ee9a00>%date%</fc>| %KARB% | %uname%"
+         , template = "%StdinReader% }{ %cpu% | %memory% * %swap% | %wlp0s20f3% | <fc=#ee9a00>%date%</fc>| %uname%"
          }
 #+end_src
