@@ -1,12 +1,13 @@
-#+title: Personal Xmonad Configuration
+#+title: Personal Xmonad Configuration with Xmobar
 #+author: Sravan Balaji
 #+PROPERTY: header-args:haskell :tangle ./xmonad.hs
+#+auto_tangle: t
 
 * Welcome
 
   My personal configuration of Xmonad, written as an [[https://orgmode.org][Org Mode]] document.
 
-  Run the block below with `C-c C-c` to tangle code blocks to config file.
+  Run the block below with ~C-c C-c~ to tangle code blocks to config file.
 
 #+begin_src emacs-lisp :tangle no
   (org-mode-restart)
@@ -85,10 +86,12 @@ of this list.
 
 A tagging example:
 
-> workspaces = ["web", "irc", "code" ] ++ map show [4..9]
+#+begin_example
+  workspaces = ["web", "irc", "code" ] ++ map show [4..9]
+#+end_example
 
 #+begin_src haskell
-  myWorkspaces    = ["\f868\2081", "2", "3", "4", "5", "6", "7", "8", "9"]
+  myWorkspaces    = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 #+end_src 
 
 * Keybindings
@@ -108,7 +111,6 @@ is mod1Mask ("left alt").  You may also consider using mod3Mask
 
 #+begin_src haskell
   myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
-
       -- launch a terminal
       [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
@@ -183,45 +185,41 @@ is mod1Mask ("left alt").  You may also consider using mod3Mask
       ]
       ++
 
-      --
       -- mod-[1..9], Switch to workspace N
       -- mod-shift-[1..9], Move client to workspace N
-      --
       [((m .|. modm, k), windows $ f i)
           | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9]
           , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
       ++
 
-      --
       -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3
       -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
-      --
       [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
           | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
           , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
-  #+end_src
+#+end_src
 
 ** Mouse Bindings
 
 Mouse bindings: default actions bound to mouse events
 
-  #+begin_src haskell
-    myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
+#+begin_src haskell
+  myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 
-        -- mod-button1, Set the window to floating mode and move by dragging
-        [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w
-                                           >> windows W.shiftMaster))
+      -- mod-button1, Set the window to floating mode and move by dragging
+      [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w
+                                         >> windows W.shiftMaster))
 
-        -- mod-button2, Raise the window to the top of the stack
-        , ((modm, button2), (\w -> focus w >> windows W.shiftMaster))
+      -- mod-button2, Raise the window to the top of the stack
+      , ((modm, button2), (\w -> focus w >> windows W.shiftMaster))
 
-        -- mod-button3, Set the window to floating mode and resize by dragging
-        , ((modm, button3), (\w -> focus w >> mouseResizeWindow w
-                                           >> windows W.shiftMaster))
+      -- mod-button3, Set the window to floating mode and resize by dragging
+      , ((modm, button3), (\w -> focus w >> mouseResizeWindow w
+                                         >> windows W.shiftMaster))
 
-        -- you may also bind events to the mouse scroll wheel (button4 and button5)
-        ]
-  #+end_src
+      -- you may also bind events to the mouse scroll wheel (button4 and button5)
+      ]
+#+end_src
 
 * Layouts
 
@@ -234,37 +232,37 @@ The available layouts.  Note that each layout is separated by |||,
 which denotes layout choice.
 
 *Example With Xmobar*
-  #+begin_src haskell :tangle no
-    myLayout = avoidStruts (tiled ||| Mirror tiled ||| Full)
-      where
-         -- default tiling algorithm partitions the screen into two panes
-         tiled   = Tall nmaster delta ratio
+#+begin_example
+  myLayout = avoidStruts (tiled ||| Mirror tiled ||| Full)
+    where
+       -- default tiling algorithm partitions the screen into two panes
+       tiled   = Tall nmaster delta ratio
 
-         -- The default number of windows in the master pane
-         nmaster = 1
+       -- The default number of windows in the master pane
+       nmaster = 1
 
-         -- Default proportion of screen occupied by master pane
-         ratio   = 1/2
+       -- Default proportion of screen occupied by master pane
+       ratio   = 1/2
 
-         -- Percent of screen to increment by when resizing panes
-         delta   = 3/100
-  #+end_src
+       -- Percent of screen to increment by when resizing panes
+       delta   = 3/100
+#+end_example
 
-  #+begin_src haskell
-    myLayout = avoidStruts (tiled ||| Mirror tiled ||| Full)
-      where
-         -- default tiling algorithm partitions the screen into two panes
-         tiled   = Tall nmaster delta ratio
+#+begin_src haskell
+  myLayout = avoidStruts (tiled ||| Mirror tiled ||| Full)
+    where
+       -- default tiling algorithm partitions the screen into two panes
+       tiled   = Tall nmaster delta ratio
 
-         -- The default number of windows in the master pane
-         nmaster = 1
+       -- The default number of windows in the master pane
+       nmaster = 1
 
-         -- Default proportion of screen occupied by master pane
-         ratio   = 1/2
+       -- Default proportion of screen occupied by master pane
+       ratio   = 1/2
 
-         -- Percent of screen to increment by when resizing panes
-         delta   = 3/100
-  #+end_src
+       -- Percent of screen to increment by when resizing panes
+       delta   = 3/100
+#+end_src
 
 * Window Rules
 
@@ -440,14 +438,18 @@ Finally, a copy of the default bindings in simple textual tabular format.
 * Xmobar
 
 #+begin_src haskell :tangle ./xmobar.config
-  Config { font = "xft:FiraCode Nerd Font Mono:pixelsize=12:antialias=true:hinting=true"
+  Config { font = "xft:FiraCode Nerd Font Mono:weight=bold:pixelsize=12:antialias=true:hinting=true"
          , bgColor = "black"
-         , fgColor = "grey"
+         , fgColor = "white"
          , position = Top
-         , lowerOnStart = True
-         , commands = [ Run Weather "EGPF" ["-t","<station>: <tempC>C","-L","18","-H","25","--normal","green","--high","red","--low","lightblue"] 36000
+         -- , lowerOnStart = True
+         -- , hideOnStart = False
+         -- , allDesktop = True
+         -- , persistent = True
+         , commands = [ Run Weather "KARB" ["-t","<station>: <tempF>F","-L","18","-H","25","--normal","green","--high","red","--low","lightblue"] 36000
                       , Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 10
                       , Run Network "eth1" ["-L","0","-H","32","--normal","green","--high","red"] 10
+                      , Run Network "wlp0s20f3" ["-L","0","-H","32","--normal","green","--high","red"] 10
                       , Run Cpu ["-L","3","-H","50","--normal","green","--high","red"] 10
                       , Run Memory ["-t","Mem: <usedratio>%"] 10
                       , Run Swap [] 10
@@ -456,6 +458,6 @@ Finally, a copy of the default bindings in simple textual tabular format.
                       ]
          , sepChar = "%"
          , alignSep = "}{"
-         , template = "%cpu% | %memory% * %swap% | %eth0% - %eth1% }{ <fc=#ee9a00>%date%</fc>| %EGPF% | %uname%"
+         , template = "%cpu% | %memory% * %swap% | %wlp0s20f3% }{ <fc=#ee9a00>%date%</fc>| %KARB% | %uname%"
          }
 #+end_src
