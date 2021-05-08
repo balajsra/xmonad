@@ -28,6 +28,8 @@ myBorderWidth   = 2
 myNormalBorderColor  = "#4D4D4D"
 myFocusedBorderColor = "#BD93F9"
 
+-- myWorkspaces    = ["\xf868\x2081", "\xfd2c\x2082", "\xf2ce\x2083", "\xf1bc\x2084", "\xfa9e\x2085", "\xe795\x2086", "\xf667\x2087", "\xf11b\x2088", "\xf085\x2089"]
+-- myWorkspaces    = ["1:\xf868", "2:\xfd2c", "3:\xf2ce", "4:\xf1bc", "5:\xfa9e", "6:\xe795", "7:\xf667", "8:\xf11b", "9:\xf085"]
 myWorkspaces    = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 myModMask       = mod4Mask
