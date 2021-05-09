@@ -43,113 +43,67 @@ myBorderWidth   = 2
 myNormalBorderColor  = "#4D4D4D"
 myFocusedBorderColor = "#BD93F9"
 
--- myWorkspaces    = ["\xf868\x2081", "\xfd2c\x2082", "\xf2ce\x2083", "\xf1bc\x2084", "\xfa9e\x2085", "\xe795\x2086", "\xf667\x2087", "\xf11b\x2088", "\xf085\x2089"]
--- myWorkspaces    = ["1:\xf868", "2:\xfd2c", "3:\xf2ce", "4:\xf1bc", "5:\xfa9e", "6:\xe795", "7:\xf667", "8:\xf11b", "9:\xf085"]
 myWorkspaces    = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 myModMask       = mod4Mask
 
--- myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
---     -- launch a terminal
---     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
-
---     -- launch rofi drun
---     , ((modm,               xK_p     ), spawn "rofi -show drun")
-
---     -- launch rofi clipboard
---     , ((modm,               xK_c     ), spawn "rofi -show clipboard")
-
---     -- close focused window
---     , ((modm .|. shiftMask, xK_c     ), kill)
-
---      -- Rotate through the available layout algorithms
---     , ((modm,               xK_space ), sendMessage NextLayout)
-
---     --  Reset the layouts on the current workspace to default
---     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
-
---     -- Resize viewed windows to the correct size
---     , ((modm,               xK_n     ), refresh)
-
---     -- Move focus to the next window
---     , ((modm,               xK_Tab   ), windows W.focusDown)
-
---     -- Move focus to the next window
---     , ((modm,               xK_j     ), windows W.focusDown)
-
---     -- Move focus to the previous window
---     , ((modm,               xK_k     ), windows W.focusUp  )
-
---     -- Move focus to the master window
---     , ((modm,               xK_m     ), windows W.focusMaster  )
-
---     -- Swap the focused window and the master window
---     , ((modm,               xK_Return), windows W.swapMaster)
-
---     -- Swap the focused window with the next window
---     , ((modm .|. shiftMask, xK_j     ), windows W.swapDown  )
-
---     -- Swap the focused window with the previous window
---     , ((modm .|. shiftMask, xK_k     ), windows W.swapUp    )
-
---     -- Shrink the master area
---     , ((modm,               xK_h     ), sendMessage Shrink)
-
---     -- Expand the master area
---     , ((modm,               xK_l     ), sendMessage Expand)
-
---     -- Push window back into tiling
---     , ((modm,               xK_t     ), withFocused $ windows . W.sink)
-
---     -- Increment the number of windows in the master area
---     , ((modm,               xK_i ), sendMessage (IncMasterN 1))
-
---     -- Deincrement the number of windows in the master area
---     , ((modm,               xK_d), sendMessage (IncMasterN (-1)))
-
---     -- Toggle the status bar gap
---     -- Use this binding with avoidStruts from Hooks.ManageDocks.
---     -- See also the statusBar function from Hooks.DynamicLog.
---     --
---     -- , ((modm              , xK_b     ), sendMessage ToggleStruts)
-
---     -- Quit xmonad
---     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
-
---     -- Restart xmonad
---     , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
-
---     -- Run xmessage with a summary of the default keybindings (useful for beginners)
---     , ((modm .|. shiftMask, xK_slash ), spawn ("echo \"" ++ help ++ "\" | xmessage -file -"))
---     ]
---     ++
-
---     -- mod-[1..9], Switch to workspace N
---     -- mod-shift-[1..9], Move client to workspace N
---     [((m .|. modm, k), windows $ f i)
---         | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9]
---         , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
---     ++
-
---     -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3
---     -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
---     [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
---         | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
---         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
-
 myKeys =
-  [ ("M-" ++ m ++ k, windows $ f i)
+  [
+  -- dwm-like add window to a specific workspace
+    ("M-" ++ m ++ k, windows $ f i)
       | (i, k) <- zip (myWorkspaces) (map show [1 :: Int ..])
-      , (f, m) <- [(W.view, ""), (W.shift, "S-"), (copy, "S-C-")]]
+      , (f, m) <- [(W.view, ""), (W.shift, "S-"), (copy, "S-C-")]
+  ]
   ++
-  [ ("S-C-a", windows copyToAll)  -- copy window to all workspaces
+  [
+  -- dwm-like add/remove window to/from all workspaces
+    ("S-C-a", windows copyToAll)  -- copy window to all workspaces
   , ("S-C-z", killAllOtherCopies) -- kill copies of window on other workspaces
+
+  -- modify tiled window size
   , ("M-a", sendMessage MirrorShrink) -- decrease vertical window size
   , ("M-z", sendMessage MirrorExpand) -- increase vertical window size
+
+  -- toggle struts for xmobar
   , ("M-s", sendMessage ToggleStruts)
+
+  -- switch directly to a layout
   , ("M-f", sendMessage $ JumpToLayout "Full")
   , ("M-t", sendMessage $ JumpToLayout "Spacing ResizableTall")
   , ("M-g", sendMessage $ JumpToLayout "Spacing Grid")
+
+  -- launch rofi
+  , ("M-p", spawn "rofi -show combi")
+  , ("M-c", spawn "rofi -show clipboard")
+
+  -- volume control
+  , ("<XF86AudioRaiseVolume>", spawn "pactl set-sink-volume @DEFAULT_SINK@ +1%")  -- increase volume
+  , ("<XF86AudioLowerVolume>", spawn "pactl set-sink-volume @DEFAULT_SINK@ -1%")  -- decrease volume
+  , ("<XF86AudioMute>",        spawn "pactl set-sink-mute @DEFAULT_SINK@ toggle") -- mute volume
+
+  -- media control
+  , ("<XF86AudioPlay>",     spawn "playerctl --player=playerctld play-pause") -- play / pause
+  , ("C-<XF86AudioPlay>",   spawn "playerctl --player=playerctld next")       -- next
+  , ("C-S-<XF86AudioPlay>", spawn "playerctl --player=playerctld previous")   -- previous
+  , ("S-<XF86AudioPlay>",   spawn "playerctld shift")                         -- change player
+
+  -- notification control
+  , ("M-n",     spawn "dunstctl context")           -- notification context menu
+  , ("M-C-n",   spawn "dunstctl close")             -- close notification
+  , ("M-S-n",   spawn "dunstctl history-pop")       -- pop history
+  , ("M-C-S-n", spawn "dunstctl set-paused toggle") -- toggle do not disturb
+
+  -- system control
+  , ("M-q",     spawn "xmonad --recompile; xmonad --restart") -- recompile and restart xmonad
+  , ("M-C-S-q", io (exitWith ExitSuccess))                    -- quit xmonad
+  , ("M-C-S-l", spawn "light-locker-command --lock")          -- lock
+  , ("M-C-S-s", spawn "systemctl suspend")                    -- suspend
+
+  -- toggle compositor
+  , ("M-<Esc>", spawn "/home/sravan/.config/picom/toggle_picom.sh")
+
+  -- screenshot
+  , ("<Print>", spawn "flameshot gui")
   ]
 
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
@@ -193,13 +147,29 @@ myManageHook = composeAll
     , resource  =? "desktop_window" --> doIgnore
     , resource  =? "kdesktop"       --> doIgnore ]
 
--- myEventHook = mempty
-
--- myLogHook = return ()
-
 myStartupHook = do
-  spawnOnce "nitrogen --restore &"
-  spawnOnce "picom  &"
+  -- System Restore Processes
+  spawnOnce "/home/sravan/.screenlayout/default.sh &"                     -- restore default screen layout
+  spawnOnce "nitrogen --restore &"                                        -- restore wallpaper
+  spawnOnce "numlockx on &"                                               -- enable numlock
+
+  -- System Tray Applications
+  spawnOnce "volctl &"                                                    -- PulseAudio Volume Control
+  spawnOnce "nyrna &"                                                     -- Nyrna Application Suspend
+  spawnOnce "blueman-applet &"                                            -- Blueman Bluetooth Manager
+  spawnOnce "nm-applet &"                                                 -- Network Manager Applet
+  spawnOnce "kdeconnect-indicator &"                                      -- KDE Connect
+  spawnOnce "flameshot &"                                                 -- Flameshot Screenshot Tool
+  spawnOnce "xfce4-power-manager &"                                       -- XFCE4 Power Manager
+
+  -- Background Processes
+  spawnOnce "/home/sravan/.config/picom/toggle_picom.sh &"                -- Picom Compositor
+  spawnOnce "/home/sravan/.config/dunst/launch_dunst.sh &"                -- Dunst Notification Daemon
+  spawnOnce "greenclip daemon &"                                          -- Greenclip Clipboard Manager
+  spawnOnce "redshift -x &"                                               -- Reset redshift display gamma
+  spawnOnce "redshift-gtk &"                                              -- Redshift Blue Light Filter
+  spawnOnce "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &" -- GNOME Polkit Authentication Agent
+  spawnOnce "light-locker --lock-on-suspend --lock-on-lid &"              -- screen lock for lightdm
 
 main = do
   -- `xmobar -x 0` launches the bar on monitor 0
