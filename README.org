@@ -17,7 +17,8 @@
 * Imports
 
 #+begin_src haskell
-  import XMonad
+  import XMonad hiding ( (|||) )
+  import XMonad.Layout.LayoutCombinators (JumpToLayout(..), (|||))
   import XMonad.Config.Desktop
   import Data.Monoid
   import System.Exit
@@ -34,7 +35,7 @@
 
   -- hooks
   import XMonad.Hooks.DynamicLog
-  import XMonad.Hooks.ManageDocks
+  import XMonad.Hooks.ManageDocks (avoidStruts, docksStartupHook, manageDocks, ToggleStruts(..))
   import XMonad.Hooks.EwmhDesktops
   import XMonad.Hooks.ManageHelpers (isFullscreen, isDialog, doFullFloat, doCenterFloat, doRectFloat)
   import XMonad.Hooks.Place (placeHook, withGaps, smart)
@@ -221,10 +222,18 @@ is mod1Mask ("left alt").  You may also consider using mod3Mask
 
 #+begin_src haskell
   myKeys =
+    [ ("M-" ++ m ++ k, windows $ f i)
+        | (i, k) <- zip (myWorkspaces) (map show [1 :: Int ..])
+        , (f, m) <- [(W.view, ""), (W.shift, "S-"), (copy, "S-C-")]]
+    ++
     [ ("S-C-a", windows copyToAll)  -- copy window to all workspaces
     , ("S-C-z", killAllOtherCopies) -- kill copies of window on other workspaces
-    , (("M-a"), sendMessage MirrorShrink) -- decrease vertical window size
-    , (("M-z"), sendMessage MirrorExpand) -- increase vertical window size
+    , ("M-a", sendMessage MirrorShrink) -- decrease vertical window size
+    , ("M-z", sendMessage MirrorExpand) -- increase vertical window size
+    , ("M-s", sendMessage ToggleStruts)
+    , ("M-f", sendMessage $ JumpToLayout "Full")
+    , ("M-t", sendMessage $ JumpToLayout "Spacing ResizableTall")
+    , ("M-g", sendMessage $ JumpToLayout "Spacing Grid")
     ]
 #+end_src
 
@@ -262,7 +271,7 @@ which denotes layout choice.
 
 #+begin_src haskell
   myLayout =
-    avoidStruts ( tiled ||| grid ||| monocle ) ||| fullscreen
+    avoidStruts ( tiled ||| grid ||| monocle )
     where
        -- default tiling algorithm partitions the screen into two panes
        nmaster = 1
@@ -277,10 +286,8 @@ which denotes layout choice.
        grid = spacing grid_spacing $ Grid grid_ratio
 
        -- monocle
-       monocle = smartBorders (Full)
-
-       -- fullscreen
-       fullscreen = noBorders (Full)
+       -- monocle = smartBorders (Full)
+       monocle = noBorders (Full)
 #+end_src
 
 * Window Rules

@@ -1,4 +1,5 @@
-import XMonad
+import XMonad hiding ( (|||) )
+import XMonad.Layout.LayoutCombinators (JumpToLayout(..), (|||))
 import XMonad.Config.Desktop
 import Data.Monoid
 import System.Exit
@@ -15,7 +16,7 @@ import XMonad.Util.EZConfig (additionalKeysP, additionalMouseBindings)
 
 -- hooks
 import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.ManageDocks (avoidStruts, docksStartupHook, manageDocks, ToggleStruts(..))
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageHelpers (isFullscreen, isDialog, doFullFloat, doCenterFloat, doRectFloat)
 import XMonad.Hooks.Place (placeHook, withGaps, smart)
@@ -137,10 +138,18 @@ myModMask       = mod4Mask
 --         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
 myKeys =
+  [ ("M-" ++ m ++ k, windows $ f i)
+      | (i, k) <- zip (myWorkspaces) (map show [1 :: Int ..])
+      , (f, m) <- [(W.view, ""), (W.shift, "S-"), (copy, "S-C-")]]
+  ++
   [ ("S-C-a", windows copyToAll)  -- copy window to all workspaces
   , ("S-C-z", killAllOtherCopies) -- kill copies of window on other workspaces
-  , (("M-a"), sendMessage MirrorShrink) -- decrease vertical window size
-  , (("M-z"), sendMessage MirrorExpand) -- increase vertical window size
+  , ("M-a", sendMessage MirrorShrink) -- decrease vertical window size
+  , ("M-z", sendMessage MirrorExpand) -- increase vertical window size
+  , ("M-s", sendMessage ToggleStruts)
+  , ("M-f", sendMessage $ JumpToLayout "Full")
+  , ("M-t", sendMessage $ JumpToLayout "Spacing ResizableTall")
+  , ("M-g", sendMessage $ JumpToLayout "Spacing Grid")
   ]
 
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
@@ -160,7 +169,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     ]
 
 myLayout =
-  avoidStruts ( tiled ||| grid ||| monocle ) ||| fullscreen
+  avoidStruts ( tiled ||| grid ||| monocle )
   where
      -- default tiling algorithm partitions the screen into two panes
      nmaster = 1
@@ -175,10 +184,8 @@ myLayout =
      grid = spacing grid_spacing $ Grid grid_ratio
 
      -- monocle
-     monocle = smartBorders (Full)
-
-     -- fullscreen
-     fullscreen = noBorders (Full)
+     -- monocle = smartBorders (Full)
+     monocle = noBorders (Full)
 
 myManageHook = composeAll
     [ className =? "MPlayer"        --> doFloat
