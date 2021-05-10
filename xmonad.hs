@@ -57,8 +57,8 @@ myKeys =
   ++
   [
   -- dwm-like add/remove window to/from all workspaces
-    ("S-C-a", windows copyToAll)  -- copy window to all workspaces
-  , ("S-C-z", killAllOtherCopies) -- kill copies of window on other workspaces
+    ("M-S-C-a", windows copyToAll)  -- copy window to all workspaces
+  , ("M-S-C-z", killAllOtherCopies) -- kill copies of window on other workspaces
 
   -- modify tiled window size
   , ("M-a", sendMessage MirrorShrink) -- decrease vertical window size
@@ -67,10 +67,19 @@ myKeys =
   -- toggle struts for xmobar
   , ("M-s", sendMessage ToggleStruts)
 
-  -- switch directly to a layout
+  -- switch directly to a layout with and without flattening floating windows
   , ("M-f", sendMessage $ JumpToLayout "Full")
+  , ("M-S-f", sequence_
+      [ withFocused $ windows . W.sink
+      , sendMessage $ JumpToLayout "Full"])
   , ("M-t", sendMessage $ JumpToLayout "Spacing ResizableTall")
+  , ("M-S-t", sequence_
+      [ withFocused $ windows . W.sink
+      , sendMessage $ JumpToLayout "Spacing ResizableTall"])
   , ("M-g", sendMessage $ JumpToLayout "Spacing Grid")
+  , ("M-S-g", sequence_
+      [ withFocused $ windows . W.sink
+      , sendMessage $ JumpToLayout "Spacing Grid"])
 
   -- launch rofi
   , ("M-p", spawn "rofi -show combi")
@@ -98,6 +107,10 @@ myKeys =
   , ("M-C-S-q", io (exitWith ExitSuccess))                    -- quit xmonad
   , ("M-C-S-l", spawn "light-locker-command --lock")          -- lock
   , ("M-C-S-s", spawn "systemctl suspend")                    -- suspend
+
+  -- close focused window
+  , ("M-S-c",   kill)          -- regular kill
+  , ("M-C-S-c", spawn "xkill") -- force kill
 
   -- toggle compositor
   , ("M-<Esc>", spawn "/home/sravan/.config/picom/toggle_picom.sh")
@@ -142,10 +155,14 @@ myLayout =
      monocle = noBorders (Full)
 
 myManageHook = composeAll
-    [ className =? "MPlayer"        --> doFloat
-    , className =? "Gimp"           --> doFloat
-    , resource  =? "desktop_window" --> doIgnore
-    , resource  =? "kdesktop"       --> doIgnore ]
+    [ className =? "MPlayer"            --> doFloat
+    , className =? "Gimp"               --> doFloat
+    , resource  =? "desktop_window"     --> doIgnore
+    , resource  =? "kdesktop"           --> doIgnore
+    , title     =? "Picture in picture" --> doFloat
+    ]
+
+myPlacement = withGaps (16,0,16,0) (smart (0.5,0.5))
 
 myStartupHook = do
   -- System Restore Processes
@@ -176,7 +193,7 @@ main = do
   xmproc <- spawnPipe "xmobar -x 0 /home/sravan/.xmonad/xmobar.config"
   -- launches xmobar as a dock
   xmonad $ ewmh desktopConfig
-    { manageHook         = manageDocks <+> manageHook desktopConfig
+    { manageHook         = manageDocks <+> myManageHook <+> placeHook myPlacement <+> manageHook desktopConfig
     , startupHook        = myStartupHook
     , layoutHook         = myLayout
     , borderWidth        = myBorderWidth
