@@ -6,9 +6,6 @@ import System.Exit
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
--- system
-import System.IO (hPutStrLn)
-
 -- util
 import XMonad.Util.Run (safeSpawn, unsafeSpawn, runInTerm, spawnPipe)
 import XMonad.Util.SpawnOnce
@@ -16,13 +13,14 @@ import XMonad.Util.EZConfig (additionalKeysP, additionalMouseBindings)
 
 -- hooks
 import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.ManageDocks (avoidStruts, docksStartupHook, manageDocks, ToggleStruts(..))
+import XMonad.Hooks.ManageDocks (docks, avoidStruts, docksStartupHook, manageDocks, ToggleStruts(..))
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageHelpers (isFullscreen, isDialog, doFullFloat, doCenterFloat, doRectFloat)
 import XMonad.Hooks.Place (placeHook, withGaps, smart)
 
 -- actions
 import XMonad.Actions.CopyWindow
+import XMonad.Actions.CycleWS
 
 -- layout
 import XMonad.Layout.NoBorders 
@@ -57,8 +55,8 @@ myKeys =
   ++
   [
   -- dwm-like add/remove window to/from all workspaces
-    ("M-S-C-a", windows copyToAll)  -- copy window to all workspaces
-  , ("M-S-C-z", killAllOtherCopies) -- kill copies of window on other workspaces
+    ("M-C-S-a", windows copyToAll)  -- copy window to all workspaces
+  , ("M-C-S-z", killAllOtherCopies) -- kill copies of window on other workspaces
 
   -- modify tiled window size
   , ("M-a", sendMessage MirrorShrink) -- decrease vertical window size
@@ -71,15 +69,26 @@ myKeys =
   , ("M-f", sendMessage $ JumpToLayout "Full")
   , ("M-S-f", sequence_
       [ withFocused $ windows . W.sink
+      , refresh
       , sendMessage $ JumpToLayout "Full"])
   , ("M-t", sendMessage $ JumpToLayout "Spacing ResizableTall")
   , ("M-S-t", sequence_
       [ withFocused $ windows . W.sink
+      , refresh
       , sendMessage $ JumpToLayout "Spacing ResizableTall"])
   , ("M-g", sendMessage $ JumpToLayout "Spacing Grid")
   , ("M-S-g", sequence_
       [ withFocused $ windows . W.sink
+      , refresh
       , sendMessage $ JumpToLayout "Spacing Grid"])
+
+  -- cycle & move between screens
+  , ("M-,",     prevScreen)
+  , ("M-S-,",   shiftPrevScreen)
+  , ("M-C-S-,", swapPrevScreen)
+  , ("M-.",     nextScreen)
+  , ("M-S-.",   shiftNextScreen)
+  , ("M-C-S-.", swapNextScreen)
 
   -- launch rofi
   , ("M-p", spawn "rofi -show combi")
@@ -164,6 +173,8 @@ myManageHook = composeAll
 
 myPlacement = withGaps (16,0,16,0) (smart (0.5,0.5))
 
+myEventHook = ewmhDesktopsEventHook
+
 myStartupHook = do
   -- System Restore Processes
   spawnOnce "/home/sravan/.screenlayout/default.sh &"                     -- restore default screen layout
@@ -171,7 +182,6 @@ myStartupHook = do
   spawnOnce "numlockx on &"                                               -- enable numlock
 
   -- System Tray Applications
-  spawnOnce "volctl &"                                                    -- PulseAudio Volume Control
   spawnOnce "nyrna &"                                                     -- Nyrna Application Suspend
   spawnOnce "blueman-applet &"                                            -- Blueman Bluetooth Manager
   spawnOnce "nm-applet &"                                                 -- Network Manager Applet
@@ -189,10 +199,11 @@ myStartupHook = do
   spawnOnce "light-locker --lock-on-suspend --lock-on-lid &"              -- screen lock for lightdm
 
 main = do
-  -- `xmobar -x 0` launches the bar on monitor 0
-  xmproc <- spawnPipe "xmobar -x 0 /home/sravan/.xmonad/xmobar.config"
-  -- launches xmobar as a dock
-  xmonad $ ewmh desktopConfig
+  -- launches polybar
+  spawn "/home/sravan/.xmonad/polybar/launch.sh &"
+
+  -- launches xmonad
+  xmonad $ docks $ ewmh desktopConfig
     { manageHook         = manageDocks <+> myManageHook <+> placeHook myPlacement <+> manageHook desktopConfig
     , startupHook        = myStartupHook
     , layoutHook         = myLayout
@@ -201,24 +212,15 @@ main = do
     , modMask            = myModMask
     , normalBorderColor  = myNormalBorderColor
     , focusedBorderColor = myFocusedBorderColor
-    , logHook            = dynamicLogWithPP xmobarPP
-                           { ppOutput = \x -> hPutStrLn xmproc x
-                           , ppCurrent = xmobarColor "green" "" . wrap "[" "]" -- current workspace in xmobar
-                           , ppVisible = xmobarColor "cyan" ""                 -- visible but not current workspace
-                           , ppHidden = xmobarColor "yellow" "" . wrap "+" ""  -- hidden workspaces in xmobar
-                           , ppHiddenNoWindows = xmobarColor "white" ""        -- hidden workspaces (no windows)
-                           , ppTitle = xmobarColor "purple" "" . shorten 80    -- title of active window in xmobar
-                           , ppSep = " | "                                     -- separators in xmobar
-                           , ppUrgent = xmobarColor "red" "" . wrap "!" "!"    -- urgent workspace
-                           , ppOrder = \(ws:l:t:ex) -> [ws,l,t]
-                           }
-        -- focusFollowsMouse  = myFocusFollowsMouse,
-        -- clickJustFocuses   = myClickJustFocuses,
-        -- workspaces         = myWorkspaces,
-        -- keys               = myKeys,
-        -- mouseBindings      = myMouseBindings,
-        -- handleEventHook    = myEventHook,
-    } `additionalKeysP` myKeys
+    , handleEventHook    = myEventHook
+    , focusFollowsMouse  = myFocusFollowsMouse
+    , clickJustFocuses   = myClickJustFocuses
+    , workspaces         = myWorkspaces
+    , mouseBindings      = myMouseBindings
+    -- , logHook            = myLogHook
+    -- , keys               = myKeys
+    }
+    `additionalKeysP` myKeys
 
 help :: String
 help = unlines ["The default modifier key is 'alt'. Default keybindings:",
