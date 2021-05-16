@@ -24,7 +24,7 @@ import XMonad.Actions.CycleWS
 
 -- layout
 import XMonad.Layout.NoBorders 
-import XMonad.Layout.Spacing (spacing)
+import XMonad.Layout.Spacing (spacingRaw, Border(Border))
 import XMonad.Layout.GridVariants (Grid(Grid))
 import XMonad.Layout.ResizableTile
 
@@ -92,7 +92,9 @@ myKeys =
 
   -- launch rofi
   , ("M-p", spawn "rofi -show combi")
+  , ("M-S-p", spawn "/home/sravan/.scripts/control-center.sh --rofi")
   , ("M-c", spawn "rofi -show clipboard")
+  , ("M-b", spawn "rofi-rbw")
 
   -- volume control
   , ("<XF86AudioRaiseVolume>", spawn "pactl set-sink-volume @DEFAULT_SINK@ +1%")  -- increase volume
@@ -100,29 +102,21 @@ myKeys =
   , ("<XF86AudioMute>",        spawn "pactl set-sink-mute @DEFAULT_SINK@ toggle") -- mute volume
 
   -- media control
-  , ("<XF86AudioPlay>",     spawn "playerctl --player=playerctld play-pause") -- play / pause
-  , ("C-<XF86AudioPlay>",   spawn "playerctl --player=playerctld next")       -- next
-  , ("C-S-<XF86AudioPlay>", spawn "playerctl --player=playerctld previous")   -- previous
-  , ("S-<XF86AudioPlay>",   spawn "playerctld shift")                         -- change player
+  , ("<XF86AudioPlay>", spawn "/home/sravan/.scripts/playerctl.sh --play-pause")  -- play / pause
+  , ("M-m",             spawn "/home/sravan/.scripts/playerctl.sh --rofi")        -- rofi menu
 
   -- notification control
-  , ("M-n",     spawn "dunstctl context")           -- notification context menu
-  , ("M-C-n",   spawn "dunstctl close")             -- close notification
-  , ("M-S-n",   spawn "dunstctl history-pop")       -- pop history
-  , ("M-C-S-n", spawn "dunstctl set-paused toggle") -- toggle do not disturb
+  , ("M-n",     spawn "/home/sravan/.scripts/dunst.sh --rofi") -- rofi menu
 
-  -- system control
-  , ("M-q",     spawn "xmonad --recompile; xmonad --restart") -- recompile and restart xmonad
-  , ("M-C-S-q", io (exitWith ExitSuccess))                    -- quit xmonad
-  , ("M-C-S-l", spawn "light-locker-command --lock")          -- lock
-  , ("M-C-S-s", spawn "systemctl suspend")                    -- suspend
+  -- session control
+  , ("M-q",     spawn "/home/sravan/.scripts/session.sh --rofi") -- rofi menu
 
   -- close focused window
   , ("M-S-c",   kill)          -- regular kill
   , ("M-C-S-c", spawn "xkill") -- force kill
 
-  -- toggle compositor
-  , ("M-<Esc>", spawn "/home/sravan/.config/picom/toggle_picom.sh")
+  -- compositor control
+  , ("M-<Esc>", spawn "/home/sravan/.scripts/picom.sh --rofi")
 
   -- screenshot
   , ("<Print>", spawn "flameshot gui")
@@ -147,17 +141,25 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 myLayout =
   avoidStruts ( tiled ||| grid ||| monocle )
   where
+     -- Gaps around and between windows
+     -- Changes only seem to apply if I log out then in again
+     -- Dimensions are given as (Border top bottom right left)
+     mySpacing = spacingRaw False               -- Only for >1 window
+                            -- The bottom edge seems to look narrower than it is
+                            (Border 10 15 15 15) -- Size of screen edge gaps
+                            True                -- Enable screen edge gaps
+                            (Border 10 10 10 10)    -- Size of window gaps
+                            True                -- Enable window gaps
+
      -- default tiling algorithm partitions the screen into two panes
      nmaster = 1
      delta = 3/100
      tiled_ratio = 1/2
-     tiled_spacing = 10
-     tiled = spacing tiled_spacing $ ResizableTall nmaster delta tiled_ratio []
+     tiled = mySpacing $ ResizableTall nmaster delta tiled_ratio []
 
      -- grid
      grid_ratio = 16/9
-     grid_spacing = 10
-     grid = spacing grid_spacing $ Grid grid_ratio
+     grid = mySpacing $ Grid grid_ratio
 
      -- monocle
      -- monocle = smartBorders (Full)
@@ -176,11 +178,6 @@ myPlacement = withGaps (16,0,16,0) (smart (0.5,0.5))
 myEventHook = ewmhDesktopsEventHook
 
 myStartupHook = do
-  -- System Restore Processes
-  spawnOnce "/home/sravan/.screenlayout/default.sh &"                     -- restore default screen layout
-  spawnOnce "nitrogen --restore &"                                        -- restore wallpaper
-  spawnOnce "numlockx on &"                                               -- enable numlock
-
   -- System Tray Applications
   spawnOnce "nyrna &"                                                     -- Nyrna Application Suspend
   spawnOnce "blueman-applet &"                                            -- Blueman Bluetooth Manager
@@ -190,13 +187,18 @@ myStartupHook = do
   spawnOnce "xfce4-power-manager &"                                       -- XFCE4 Power Manager
 
   -- Background Processes
-  spawnOnce "/home/sravan/.config/picom/toggle_picom.sh &"                -- Picom Compositor
-  spawnOnce "/home/sravan/.config/dunst/launch_dunst.sh &"                -- Dunst Notification Daemon
+  spawnOnce "/home/sravan/.scripts/picom.sh --on &"                       -- Picom Compositor
+  spawnOnce "/home/sravan/.scripts/dunst.sh --on &"                       -- Dunst Notification Daemon
   spawnOnce "greenclip daemon &"                                          -- Greenclip Clipboard Manager
   spawnOnce "redshift -x &"                                               -- Reset redshift display gamma
   spawnOnce "redshift-gtk &"                                              -- Redshift Blue Light Filter
   spawnOnce "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &" -- GNOME Polkit Authentication Agent
   spawnOnce "light-locker --lock-on-suspend --lock-on-lid &"              -- screen lock for lightdm
+
+  -- System Restore Processes
+  spawnOnce "/home/sravan/.screenlayout/default.sh &"                     -- restore default screen layout
+  spawnOnce "nitrogen --restore &"                                        -- restore wallpaper
+  spawnOnce "numlockx on &"                                               -- enable numlock
 
 main = do
   -- launches polybar

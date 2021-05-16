@@ -1,6 +1,4 @@
 #!/bin/bash
-#!/bin/sh
-
 if ! num_updates=$(paru -Qu 2>/dev/null | wc -l); then
     # if ! updates_aur=$(yay -Qum 2>/dev/null | wc -l); then
     # if ! updates_aur=$(cower -u 2> /dev/null | wc -l); then
