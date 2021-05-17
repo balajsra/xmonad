@@ -53,7 +53,7 @@ The preferred terminal program, which is used in a binding below and by
 certain contrib modules.
 
 #+begin_src haskell :tangle xmonad.hs
-  myTerminal      = "kitty"
+  myTerminal      = "alacritty"
 #+end_src
 
 * Window Behavior & Appearance
@@ -280,7 +280,8 @@ These default keybindings are left for reference, but are not actually used in m
     , ("M-n",     spawn "/home/sravan/.scripts/dunst.sh --rofi") -- rofi menu
 
     -- session control
-    , ("M-q",     spawn "/home/sravan/.scripts/session.sh --rofi") -- rofi menu
+    , ("M-q",   spawn "/home/sravan/.scripts/session.sh --rofi") -- rofi menu
+    , ("M-S-q", io (exitWith ExitSuccess))
 
     -- close focused window
     , ("M-S-c",   kill)          -- regular kill
@@ -335,7 +336,7 @@ which denotes layout choice.
        -- Dimensions are given as (Border top bottom right left)
        mySpacing = spacingRaw False               -- Only for >1 window
                               -- The bottom edge seems to look narrower than it is
-                              (Border 10 15 15 15) -- Size of screen edge gaps
+                              (Border 15 15 15 15) -- Size of screen edge gaps
                               True                -- Enable screen edge gaps
                               (Border 10 10 10 10)    -- Size of window gaps
                               True                -- Enable window gaps
@@ -664,10 +665,10 @@ Define module update intervals in seconds.
   cpu                       = 1
   date                      = 1
   time                      = 1
-  filesystem                = 60
+  filesystem                = 900
   memory                    = 1
   pulseaudio                = 5
-  updates                   = 600
+  updates                   = 900
   media-playing             = 1
   dunst-notification-status = 1
 #+end_src
@@ -1179,7 +1180,7 @@ Define module update intervals in seconds.
   ;   <bar-load>
   ;   <ramp-load>
   ;   <ramp-coreload>
-  format = %{A3:kitty -e bpytop &:} <label> %{A}
+  format = %{A3:alacritty -e bpytop &:} <label> %{A}
 
   ; Available tokens:
   ;   %percentage% (default) - total cpu load averaged over all cores
@@ -1344,7 +1345,7 @@ Define module update intervals in seconds.
   ;   <bar-swap-free>
   ;   <ramp-swap-used>
   ;   <ramp-swap-free>
-  format = %{A3:kitty -e bpytop &:} <label> %{A}
+  format = %{A3:alacritty -e bpytop &:} <label> %{A}
 
   ; Available tokens:
   ;   %percentage_used% (default)
@@ -1501,7 +1502,7 @@ Define module update intervals in seconds.
   ; "click-(left|middle|right)" will be executed using "/bin/sh -c [command]"
   ; click-left = echo left %counter%
   ; click-middle = echo middle %counter%
-  click-right = kitty --hold -e paru -Syu &
+  click-right = alacritty --hold -e paru -Syu &
   ; double-click-left = echo double left %counter%
   ; double-click-middle = echo double middle %counter%
   ; double-click-right = echo double right %counter%

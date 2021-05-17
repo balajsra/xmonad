@@ -28,7 +28,7 @@ import XMonad.Layout.Spacing (spacingRaw, Border(Border))
 import XMonad.Layout.GridVariants (Grid(Grid))
 import XMonad.Layout.ResizableTile
 
-myTerminal      = "kitty"
+myTerminal      = "alacritty"
 
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
@@ -109,7 +109,8 @@ myKeys =
   , ("M-n",     spawn "/home/sravan/.scripts/dunst.sh --rofi") -- rofi menu
 
   -- session control
-  , ("M-q",     spawn "/home/sravan/.scripts/session.sh --rofi") -- rofi menu
+  , ("M-q",   spawn "/home/sravan/.scripts/session.sh --rofi") -- rofi menu
+  , ("M-S-q", io (exitWith ExitSuccess))
 
   -- close focused window
   , ("M-S-c",   kill)          -- regular kill
@@ -146,7 +147,7 @@ myLayout =
      -- Dimensions are given as (Border top bottom right left)
      mySpacing = spacingRaw False               -- Only for >1 window
                             -- The bottom edge seems to look narrower than it is
-                            (Border 10 15 15 15) -- Size of screen edge gaps
+                            (Border 15 15 15 15) -- Size of screen edge gaps
                             True                -- Enable screen edge gaps
                             (Border 10 10 10 10)    -- Size of window gaps
                             True                -- Enable window gaps
@@ -182,7 +183,8 @@ myStartupHook = do
   spawnOnce "nyrna &"                                                     -- Nyrna Application Suspend
   spawnOnce "blueman-applet &"                                            -- Blueman Bluetooth Manager
   spawnOnce "nm-applet &"                                                 -- Network Manager Applet
-  spawnOnce "kdeconnect-indicator &"                                      -- KDE Connect
+  spawnOnce "/usr/lib/kdeconnectd &"                                      -- KDE Connect Daemon
+  spawnOnce "kdeconnect-indicator &"                                      -- KDE Connect Indicator
   spawnOnce "flameshot &"                                                 -- Flameshot Screenshot Tool
   spawnOnce "xfce4-power-manager &"                                       -- XFCE4 Power Manager
 
@@ -196,9 +198,9 @@ myStartupHook = do
   spawnOnce "light-locker --lock-on-suspend --lock-on-lid &"              -- screen lock for lightdm
 
   -- System Restore Processes
-  spawnOnce "/home/sravan/.screenlayout/default.sh &"                     -- restore default screen layout
-  spawnOnce "nitrogen --restore &"                                        -- restore wallpaper
-  spawnOnce "numlockx on &"                                               -- enable numlock
+  spawnOnce "/home/sravan/.screenlayout/default.sh"                       -- restore default screen layout
+  spawnOnce "nitrogen --restore"                                          -- restore wallpaper
+  spawnOnce "numlockx on"                                                 -- enable numlock
 
 main = do
   -- launches polybar
