@@ -178,29 +178,7 @@ myPlacement = withGaps (16,0,16,0) (smart (0.5,0.5))
 
 myEventHook = ewmhDesktopsEventHook
 
-myStartupHook = do
-  -- System Tray Applications
-  spawnOnce "nyrna &"                                                     -- Nyrna Application Suspend
-  spawnOnce "blueman-applet &"                                            -- Blueman Bluetooth Manager
-  spawnOnce "nm-applet &"                                                 -- Network Manager Applet
-  spawnOnce "/usr/lib/kdeconnectd &"                                      -- KDE Connect Daemon
-  spawnOnce "kdeconnect-indicator &"                                      -- KDE Connect Indicator
-  spawnOnce "flameshot &"                                                 -- Flameshot Screenshot Tool
-  spawnOnce "xfce4-power-manager &"                                       -- XFCE4 Power Manager
-
-  -- Background Processes
-  spawnOnce "/home/sravan/.scripts/picom.sh --on &"                       -- Picom Compositor
-  spawnOnce "/home/sravan/.scripts/dunst.sh --on &"                       -- Dunst Notification Daemon
-  spawnOnce "greenclip daemon &"                                          -- Greenclip Clipboard Manager
-  spawnOnce "redshift -x &"                                               -- Reset redshift display gamma
-  spawnOnce "redshift-gtk &"                                              -- Redshift Blue Light Filter
-  spawnOnce "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &" -- GNOME Polkit Authentication Agent
-  spawnOnce "light-locker --lock-on-suspend --lock-on-lid &"              -- screen lock for lightdm
-
-  -- System Restore Processes
-  spawnOnce "/home/sravan/.screenlayout/default.sh"                       -- restore default screen layout
-  spawnOnce "nitrogen --restore"                                          -- restore wallpaper
-  spawnOnce "numlockx on"                                                 -- enable numlock
+myStartupHook = return()
 
 main = do
   -- launches polybar
