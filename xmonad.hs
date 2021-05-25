@@ -13,7 +13,7 @@ import XMonad.Util.EZConfig (additionalKeysP, additionalMouseBindings)
 
 -- hooks
 import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.ManageDocks (docks, avoidStruts, docksStartupHook, manageDocks, ToggleStruts(..))
+import XMonad.Hooks.ManageDocks (docks, avoidStruts, docksStartupHook, manageDocks, ToggleStruts(..), SetStruts(..))
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageHelpers (isFullscreen, isDialog, doFullFloat, doCenterFloat, doRectFloat)
 import XMonad.Hooks.Place (placeHook, withGaps, smart)
@@ -65,22 +65,42 @@ myKeys =
   -- toggle struts for xmobar
   , ("M-s", sendMessage ToggleStruts)
 
-  -- switch directly to a layout with and without flattening floating windows
-  , ("M-f", sendMessage $ JumpToLayout "Full")
+  -- full mode w/ all gaps
+  , ("M-f", sequence_
+      [ sendMessage $ JumpToLayout "Full"
+      , sendMessage $ SetStruts [minBound .. maxBound] []])
+  -- full mode w/ all gaps and flatten floating windows
   , ("M-S-f", sequence_
       [ withFocused $ windows . W.sink
       , refresh
-      , sendMessage $ JumpToLayout "Full"])
-  , ("M-t", sendMessage $ JumpToLayout "Spacing ResizableTall")
+      , sendMessage $ JumpToLayout "Full"
+      , sendMessage $ SetStruts [minBound .. maxBound] []])
+  -- full mode w/ no gaps and flatten floating windows
+  , ("M-C-S-f", sequence_
+      [ withFocused $ windows . W.sink
+      , refresh
+      , sendMessage $ JumpToLayout "Full"
+      , sendMessage $ SetStruts [] [minBound .. maxBound]])
+  -- tall mode w/ all gaps
+  , ("M-t", sequence_
+      [ sendMessage $ JumpToLayout "Spacing ResizableTall"
+      , sendMessage $ SetStruts [minBound .. maxBound] []])
+  -- tall mode w/ all gaps and flatten floating windows
   , ("M-S-t", sequence_
       [ withFocused $ windows . W.sink
       , refresh
-      , sendMessage $ JumpToLayout "Spacing ResizableTall"])
-  , ("M-g", sendMessage $ JumpToLayout "Spacing Grid")
+      , sendMessage $ JumpToLayout "Spacing ResizableTall"
+      , sendMessage $ SetStruts [minBound .. maxBound] []])
+  -- grid mode w/ all gaps
+  , ("M-g", sequence_
+      [ sendMessage $ JumpToLayout "Spacing Grid"
+      , sendMessage $ SetStruts [minBound .. maxBound] []])
+  -- grid mode w/ all gaps and flatten floating windows
   , ("M-S-g", sequence_
       [ withFocused $ windows . W.sink
       , refresh
-      , sendMessage $ JumpToLayout "Spacing Grid"])
+      , sendMessage $ JumpToLayout "Spacing Grid"
+      , sendMessage $ SetStruts [minBound .. maxBound] []])
 
   -- cycle & move between screens
   , ("M-,",     prevScreen)
@@ -97,9 +117,10 @@ myKeys =
   , ("M-b", spawn "rofi-rbw")
 
   -- volume control
-  , ("<XF86AudioRaiseVolume>", spawn "pactl set-sink-volume @DEFAULT_SINK@ +1%")  -- increase volume
-  , ("<XF86AudioLowerVolume>", spawn "pactl set-sink-volume @DEFAULT_SINK@ -1%")  -- decrease volume
-  , ("<XF86AudioMute>",        spawn "pactl set-sink-mute @DEFAULT_SINK@ toggle") -- mute volume
+  , ("<XF86AudioRaiseVolume>", spawn "/home/sravan/.scripts/pactl.sh --raise") -- increase volume
+  , ("<XF86AudioLowerVolume>", spawn "/home/sravan/.scripts/pactl.sh --lower") -- decrease volume
+  , ("<XF86AudioMute>",        spawn "/home/sravan/.scripts/pactl.sh --mute")  -- mute volume
+  , ("M-v",                    spawn "/home/sravan/.scripts/pactl.sh --rofi")  -- rofi menu
 
   -- media control
   , ("<XF86AudioPlay>", spawn "/home/sravan/.scripts/playerctl.sh --play-pause")  -- play / pause
