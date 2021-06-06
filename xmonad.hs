@@ -193,6 +193,7 @@ myManageHook = composeAll
     , resource  =? "desktop_window"     --> doIgnore
     , resource  =? "kdesktop"           --> doIgnore
     , title     =? "Picture in picture" --> doFloat
+    , title     =? "Origin"             --> doFloat
     ]
 
 myPlacement = withGaps (16,0,16,0) (smart (0.5,0.5))
