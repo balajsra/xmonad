@@ -1,6 +1,7 @@
 #+title: Personal Xmonad Configuration with Polybar
 #+author: Sravan Balaji
 #+auto_tangle: t
+#+startup: showeverything
 
 * Welcome
 
@@ -98,18 +99,20 @@ By default we use numeric strings, but any string may be used as a
 workspace name. The number of workspaces is determined by the length
 of this list.
 
-*A tagging example:*
+*NOT IN USE: A tagging example:*
+
 #+begin_src haskell :tangle no
   workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 #+end_src
 
-*Workspace Names w/ Icons:*
+*NOT IN USE: Workspace Names w/ Icons:*
 #+begin_src haskell :tangle no
   myWorkspaces    = ["\xf868\x2081", "\xfd2c\x2082", "\xf2ce\x2083", "\xf1bc\x2084", "\xfa9e\x2085", "\xe795\x2086", "\xf667\x2087", "\xf11b\x2088", "\xf085\x2089"]
   myWorkspaces    = ["1:\xf868", "2:\xfd2c", "3:\xf2ce", "4:\xf1bc", "5:\xfa9e", "6:\xe795", "7:\xf667", "8:\xf11b", "9:\xf085"]
 #+end_src
 
 *Actual Workspace Definition:*
+
 #+begin_src haskell :tangle xmonad.hs
   myWorkspaces    = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 #+end_src 
@@ -132,6 +135,7 @@ is mod1Mask ("left alt").  You may also consider using mod3Mask
 These default keybindings are left for reference, but are not actually used in my config. ~desktopConfig~ automatically uses the default keybindings shown below. I am overwriting some of these in the [[*EZConfig Keybindings]]
 
 *NOT IN USE*
+
 #+begin_src haskell :tangle no
   myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
       -- launch a terminal
@@ -350,17 +354,20 @@ which denotes layout choice.
 
 #+begin_src haskell :tangle xmonad.hs
   myLayout =
-    avoidStruts ( tiled ||| grid ||| monocle )
+    -- remove borders on floating windows that cover the whole screen
+    lessBorders OnlyScreenFloat
+    -- avoid struts (status bar)
+    $ avoidStruts ( tiled ||| grid ||| monocle )
     where
        -- Gaps around and between windows
        -- Changes only seem to apply if I log out then in again
        -- Dimensions are given as (Border top bottom right left)
-       mySpacing = spacingRaw False               -- Only for >1 window
+       mySpacing = spacingRaw False                -- Only for >1 window
                               -- The bottom edge seems to look narrower than it is
                               (Border 15 15 15 15) -- Size of screen edge gaps
-                              True                -- Enable screen edge gaps
-                              (Border 10 10 10 10)    -- Size of window gaps
-                              True                -- Enable window gaps
+                              True                 -- Enable screen edge gaps
+                              (Border 10 10 10 10) -- Size of window gaps
+                              True                 -- Enable window gaps
 
        -- default tiling algorithm partitions the screen into two panes
        nmaster = 1
@@ -419,7 +426,7 @@ Smart placement with a preference for putting windows near the center of the scr
     combine event hooks use mappend or mconcat from Data.Monoid.
 
  #+begin_src haskell :tangle xmonad.hs
-   myEventHook = ewmhDesktopsEventHook
+   myEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook
  #+end_src
 
 * Logging
@@ -428,6 +435,7 @@ Perform an arbitrary action on each internal state change or X event.
 See the ~XMonad.Hooks.DynamicLog~ extension for examples.
 
 *NOT IN USE*
+
 #+begin_src haskell :tangle no
   myLogHook = return ()
 #+end_src
@@ -537,6 +545,7 @@ Finally, a copy of the default bindings in simple textual tabular format.
 ** Xmobar
 
 *NOT IN USE*
+
 #+begin_src haskell :tangle no
   Config { font = "xft:FiraCode Nerd Font Mono:weight=bold:pixelsize=12:antialias=true:hinting=true"
          , additionalFonts = []
