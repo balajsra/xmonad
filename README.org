@@ -1,7 +1,37 @@
-#+title: Personal Xmonad Configuration with Polybar
-#+author: Sravan Balaji
-#+auto_tangle: t
-#+startup: showeverything
+#+TITLE: Personal Xmonad Configuration with Polybar
+#+AUTHOR: Sravan Balaji
+#+AUTO_TANGLE: t
+#+STARTUP: showeverything
+
+* Table of Contents :TOC_3:noexport:
+- [[#welcome][Welcome]]
+- [[#imports][Imports]]
+- [[#terminal][Terminal]]
+- [[#window-behavior--appearance][Window Behavior & Appearance]]
+  - [[#mouse-focus][Mouse Focus]]
+  - [[#window-border-size][Window Border Size]]
+  - [[#window-border-colors][Window Border Colors]]
+- [[#workspaces][Workspaces]]
+- [[#keybindings][Keybindings]]
+  - [[#modifier-key][Modifier Key]]
+  - [[#default-keybindings][Default Keybindings]]
+  - [[#ezconfig-keybindings][EZConfig Keybindings]]
+  - [[#mouse-bindings][Mouse Bindings]]
+- [[#layouts][Layouts]]
+- [[#window-rules][Window Rules]]
+- [[#event-handling][Event Handling]]
+- [[#logging][Logging]]
+- [[#startup][Startup]]
+  - [[#hook][Hook]]
+  - [[#main][Main]]
+  - [[#default-keybindings-reference][Default Keybindings Reference]]
+- [[#status-bar][Status Bar]]
+  - [[#xmobar][Xmobar]]
+  - [[#polybar][Polybar]]
+    - [[#general][General]]
+    - [[#bars][Bars]]
+    - [[#modules][Modules]]
+    - [[#launch-script][Launch Script]]
 
 * Welcome
 
@@ -9,14 +39,14 @@ My personal configuration of Xmonad, written as an [[https://orgmode.org][Org Mo
 
 Run the block below with ~C-c C-c~ to tangle code blocks to config file.
 
-#+begin_src emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle no
 (org-mode-restart)
 (org-babel-tangle)
-#+end_src
+#+END_SRC
 
 * Imports
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 import XMonad hiding ( (|||) )
 import XMonad.Layout.LayoutCombinators (JumpToLayout(..), (|||))
 import XMonad.Config.Desktop
@@ -46,16 +76,16 @@ import XMonad.Layout.NoBorders
 import XMonad.Layout.Spacing (spacingRaw, Border(Border))
 import XMonad.Layout.GridVariants (Grid(Grid))
 import XMonad.Layout.ResizableTile
-#+end_src
+#+END_SRC
 
 * Terminal
 
 The preferred terminal program, which is used in a binding below and by
 certain contrib modules.
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myTerminal      = "alacritty"
-#+end_src
+#+END_SRC
 
 * Window Behavior & Appearance
 
@@ -63,34 +93,34 @@ myTerminal      = "alacritty"
 
 Whether focus follows the mouse pointer.
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
-#+end_src
+#+END_SRC
 
 Whether clicking on a window to focus also passes the click to the window
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myClickJustFocuses :: Bool
 myClickJustFocuses = False
-#+end_src
+#+END_SRC
 
 ** Window Border Size
 
 Width of the window border in pixels.
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myBorderWidth   = 2
-#+end_src
+#+END_SRC
 
 ** Window Border Colors
 
 Border colors for unfocused and focused windows, respectively.
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myNormalBorderColor  = "#4D4D4D"
 myFocusedBorderColor = "#BD93F9"
-#+end_src
+#+END_SRC
 
 * Workspaces
 
@@ -99,23 +129,17 @@ By default we use numeric strings, but any string may be used as a
 workspace name. The number of workspaces is determined by the length
 of this list.
 
-*NOT IN USE: A tagging example:*
+*A tagging example:*
 
-#+begin_src haskell :tangle no
+#+BEGIN_EXAMPLE
 workspaces = ["web", "irc", "code" ] ++ map show [4..9]
-#+end_src
+workspaces = ["\xf868\x2081", "\xfd2c\x2082", "\xf2ce\x2083", "\xf1bc\x2084", "\xfa9e\x2085", "\xe795\x2086", "\xf667\x2087", "\xf11b\x2088", "\xf085\x2089"]
+workspaces = ["1:\xf868", "2:\xfd2c", "3:\xf2ce", "4:\xf1bc", "5:\xfa9e", "6:\xe795", "7:\xf667", "8:\xf11b", "9:\xf085"]
+#+END_EXAMPLE
 
-*NOT IN USE: Workspace Names w/ Icons:*
-#+begin_src haskell :tangle no
-myWorkspaces    = ["\xf868\x2081", "\xfd2c\x2082", "\xf2ce\x2083", "\xf1bc\x2084", "\xfa9e\x2085", "\xe795\x2086", "\xf667\x2087", "\xf11b\x2088", "\xf085\x2089"]
-myWorkspaces    = ["1:\xf868", "2:\xfd2c", "3:\xf2ce", "4:\xf1bc", "5:\xfa9e", "6:\xe795", "7:\xf667", "8:\xf11b", "9:\xf085"]
-#+end_src
-
-*Actual Workspace Definition:*
-
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myWorkspaces    = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
-#+end_src 
+#+END_SRC
 
 * Keybindings
 
@@ -126,17 +150,15 @@ is mod1Mask ("left alt").  You may also consider using mod3Mask
 ("right alt"), which does not conflict with emacs keybindings. The
 "windows key" is usually mod4Mask.
   
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myModMask       = mod4Mask
-#+end_src
+#+END_SRC
 
 ** Default Keybindings
 
 These default keybindings are left for reference, but are not actually used in my config. ~desktopConfig~ automatically uses the default keybindings shown below. I am overwriting some of these in the [[*EZConfig Keybindings]]
 
-*NOT IN USE*
-
-#+begin_src haskell :tangle no
+#+BEGIN_EXAMPLE
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch a terminal
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
@@ -215,11 +237,11 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
         | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
-#+end_src
+#+END_EXAMPLE
 
 ** EZConfig Keybindings
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myKeys =
   [
   -- dwm-like add window to a specific workspace
@@ -318,13 +340,13 @@ myKeys =
   -- screenshot
   , ("<Print>", spawn "flameshot gui")
   ]
-#+end_src
+#+END_SRC
 
 ** Mouse Bindings
 
 Mouse bindings: default actions bound to mouse events
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- mod-button1, Set the window to floating mode and move by dragging
@@ -340,7 +362,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- you may also bind events to the mouse scroll wheel (button4 and button5)
     ]
-#+end_src
+#+END_SRC
 
 * Layouts
 
@@ -352,7 +374,7 @@ defaults, as xmonad preserves your old layout settings by default.
 The available layouts.  Note that each layout is separated by |||,
 which denotes layout choice.
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myLayout =
   -- remove borders on floating windows that cover the whole screen
   lessBorders OnlyScreenFloat
@@ -382,7 +404,7 @@ myLayout =
      -- monocle
      -- monocle = smartBorders (Full)
      monocle = noBorders (Full)
-#+end_src
+#+END_SRC
 
 * Window Rules
 
@@ -398,7 +420,7 @@ and click on the client you're interested in.
 To match on the WM_NAME, you can use 'title' in the same way that
 'className' and 'resource' are used below.
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myManageHook = composeAll
     [ className =? "MPlayer"            --> doFloat
     , className =? "Gimp"               --> doFloat
@@ -407,15 +429,15 @@ myManageHook = composeAll
     , title     =? "Picture in picture" --> doFloat
     , title     =? "Origin"             --> doFloat
     ]
-#+end_src
+#+END_SRC
 
 Automatically place floating windows using ~myPlacement~.
 
 Smart placement with a preference for putting windows near the center of the screen, and with 16px gaps at the top and bottom of the screen where no window will be placed.
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myPlacement = withGaps (16,0,16,0) (smart (0.5,0.5))
-#+end_src
+#+END_SRC
 
 * Event Handling
 
@@ -425,20 +447,18 @@ Defines a custom handler function for X Events. The function should
 return (All True) if the default handler is to be run afterwards. To
 combine event hooks use mappend or mconcat from Data.Monoid.
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook
-#+end_src
+#+END_SRC
 
 * Logging
 
 Perform an arbitrary action on each internal state change or X event.
 See the ~XMonad.Hooks.DynamicLog~ extension for examples.
 
-*NOT IN USE*
-
-#+begin_src haskell :tangle no
+#+BEGIN_EXAMPLE
 myLogHook = return ()
-#+end_src
+#+END_EXAMPLE
 
 * Startup 
 
@@ -448,9 +468,9 @@ Perform an arbitrary action each time xmonad starts or is restarted
 with mod-q.  Used by, e.g., XMonad.Layout.PerWorkspace to initialize
 per-workspace layout choices.
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 myStartupHook = return()
-#+end_src
+#+END_SRC
 
 ** Main
 
@@ -458,7 +478,7 @@ Now run xmonad with all the defaults we set up.
 
 Run xmonad with the settings you specify. No need to modify this.
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 main = do
   -- launches polybar
   spawn "/home/sravan/.xmonad/polybar/launch.sh &"
@@ -482,13 +502,13 @@ main = do
     -- , keys               = myKeys
     }
     `additionalKeysP` myKeys
-#+end_src 
+#+END_SRC
 
 ** Default Keybindings Reference
 
 Finally, a copy of the default bindings in simple textual tabular format.
 
-#+begin_src haskell :tangle xmonad.hs
+#+BEGIN_SRC haskell :tangle xmonad.hs
 help :: String
 help = unlines ["The default modifier key is 'alt'. Default keybindings:",
     "",
@@ -538,15 +558,13 @@ help = unlines ["The default modifier key is 'alt'. Default keybindings:",
     "mod-button1  Set the window to floating mode and move by dragging",
     "mod-button2  Raise the window to the top of the stack",
     "mod-button3  Set the window to floating mode and resize by dragging"]
-#+end_src
+#+END_SRC
 
 * Status Bar
 
 ** Xmobar
 
-*NOT IN USE*
-
-#+begin_src haskell :tangle no
+#+BEGIN_EXAMPLE
 Config { font = "xft:FiraCode Nerd Font Mono:weight=bold:pixelsize=12:antialias=true:hinting=true"
        , additionalFonts = []
        , borderColor = "black"
@@ -578,7 +596,7 @@ Config { font = "xft:FiraCode Nerd Font Mono:weight=bold:pixelsize=12:antialias=
        , template = "%StdinReader% }\
                     \{ %cpu% | %memory% * %swap% | %wlp0s20f3% | <fc=#ee9a00>%date%</fc> | %uname%"
        }
-#+end_src
+#+END_EXAMPLE
 
 ** Polybar
 
@@ -588,7 +606,7 @@ To learn more about how to configure Polybar go to https://github.com/polybar/po
 
 **** Colors
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [colors]
 dark-gray    = ${xrdb:background:#282A36}
 light-gray   = ${xrdb:color8:#4D4D4D}
@@ -635,11 +653,11 @@ cpu         = ${self.yellow}
 memory      = ${self.pink}
 filesystem  = ${self.blue}
 dunst-notification-status = ${self.red}
-#+end_src
+#+END_SRC
 
 **** Sizes
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [sizes]
 bar-height     = ${xrdb:polybar.bar-height:25}
 module-margin  = ${xrdb:polybar.module-margin:2}
@@ -647,13 +665,13 @@ module-padding = ${xrdb:polybar.module-padding:2}
 tray-maxsize   = ${xrdb:polybar.tray-maxsize:15}
 tray-scale     = ${xrdb:polybar.tray-scale:1}
 maxlen         = ${xrdb:polybar.maxlen:50}
-#+end_src
+#+END_SRC
 
 **** Intervals
 
 Define module update intervals in seconds.
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [intervals]
 cpu                       = 1
 date                      = 1
@@ -663,11 +681,11 @@ memory                    = 1
 updates                   = 900
 media-playing             = 1
 dunst-notification-status = 1
-#+end_src
+#+END_SRC
 
 **** Global Window Manager
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [global/wm]
 ; Adjust the _NET_WM_STRUT_PARTIAL top value
 ;   Used for top aligned bars
@@ -676,11 +694,11 @@ margin-bottom = 0
 ; Adjust the _NET_WM_STRUT_PARTIAL bottom value
 ;   Used for bottom aligned bars
 margin-top = 0
-#+end_src
+#+END_SRC
 
 *** Bars
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [bar/mybar]
 ; Use either of the following command to list available outputs:
 ; If unspecified, the application will pick the first one it finds.
@@ -902,13 +920,13 @@ enable-ipc = true
 ; - ns-resize : Up and down arrows, can be used to indicate scrolling
 cursor-click = pointer
 cursor-scroll = ns-resize
-#+end_src
+#+END_SRC
 
 *** Modules
 
 **** Power Menu
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [module/powermenu]
 type = custom/text
 content = "  "
@@ -928,11 +946,11 @@ click-right = "/home/sravan/.scripts/control-center.sh --rofi"
 ; "scroll-(up|down)" will be executed using "/bin/sh -c $COMMAND"
 ; scroll-up = notify-send scroll up
 ; scroll-down = notify-send scroll down
-#+end_src
+#+END_SRC
 
 **** EWMH
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [module/ewmh]
 type = internal/xworkspaces
 
@@ -1027,13 +1045,13 @@ label-empty-foreground = ${colors.xmonad-empty-foreground}
 label-empty-background = ${colors.xmonad-empty-background}
 label-empty-underline  = ${colors.xmonad-empty-background}
 label-empty-padding = ${sizes.module-padding}
-#+end_src
+#+END_SRC
 
 **** Media Playing (Playerctl)
 
 ***** Module
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [module/media-playing]
 type = custom/script
 
@@ -1089,11 +1107,11 @@ click-right = "/home/sravan/.scripts/playerctl.sh --change"
 ; "scroll-(up|down)" will be executed using "/bin/sh -c [command]"
 scroll-up = "/home/sravan/.scripts/playerctl.sh --next"
 scroll-down = "/home/sravan/.scripts/playerctl.sh --prev"
-#+end_src
+#+END_SRC
 
 ***** Script
 
-#+begin_src shell :shebang #!/bin/bash :tangle polybar/scripts/get-media-playing.sh
+#+BEGIN_SRC shell :shebang #!/bin/bash :tangle polybar/scripts/get-media-playing.sh
 mediaStatus=$(playerctl --player=playerctld metadata 2>&1)
 
 if [[ "$mediaStatus" == "No player could handle this command" ]]; then
@@ -1111,11 +1129,11 @@ else
 
         echo "$status_icon $artist - $title"
 fi
-#+end_src
+#+END_SRC
 
 **** Date
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [module/date]
 type = internal/date
 
@@ -1146,11 +1164,11 @@ format = <label>
 label = " %date%"
 ; label-font = 3
 label-foreground = ${colors.date}
-#+end_src
+#+END_SRC
 
 **** Time
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [module/time]
 type = internal/date
 
@@ -1181,11 +1199,11 @@ format = <label>
 label = " %time%"
 ; label-font = 3
 label-foreground = ${colors.time}
-#+end_src
+#+END_SRC
 
 **** User / Kernel
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [module/user-kernel]
 type = custom/ipc
 
@@ -1217,13 +1235,13 @@ click-right = polybar-msg -p %pid% hook user-kernel 2 &
 ; scroll-down =
 ; double-click-left =
 ; double-click-right =
-#+end_src
+#+END_SRC
 
 **** Updates (Pacman)
 
 ***** Module
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [module/updates]
 type = custom/script
 
@@ -1278,11 +1296,11 @@ click-right = alacritty --hold -e paru -Syu &
 ; "scroll-(up|down)" will be executed using "/bin/sh -c [command]"
 ; scroll-up = echo scroll up %counter%
 ; scroll-down = echo scroll down %counter%
-#+end_src
+#+END_SRC
 
 ***** Script
 
-#+begin_src shell :shebang #!/bin/bash :tangle polybar/scripts/updates-pacman-aurhelper.sh
+#+BEGIN_SRC shell :shebang #!/bin/bash :tangle polybar/scripts/updates-pacman-aurhelper.sh
 if ! updates_arch=$(checkupdates 2> /dev/null | wc -l ); then
     updates_arch=0
 fi
@@ -1305,11 +1323,11 @@ updates=$((updates_arch + updates_aur))
 # fi
 
 echo "$updates"
-#+end_src
+#+END_SRC
 
 **** CPU
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [module/cpu]
 type = internal/cpu
 
@@ -1343,11 +1361,11 @@ ramp-coreload-5 = ▆
 ramp-coreload-6 = ▇
 ramp-coreload-7 = █
 ramp-coreload-foreground = ${colors.cpu}
-#+end_src
+#+END_SRC
 
 **** Memory
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [module/memory]
 type = internal/memory
 
@@ -1420,11 +1438,11 @@ ramp-free-5 = ▆
 ramp-free-6 = ▇
 ramp-free-7 = █
 ramp-free-foreground = ${colors.memory}
-#+end_src
+#+END_SRC
 
 **** Filesystem
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [module/filesystem]
 type = internal/fs
 
@@ -1472,13 +1490,13 @@ label-mounted-foreground = ${colors.filesystem}
 ; Default: %mountpoint% is not mounted
 label-unmounted = %mountpoint% is not mounted
 label-unmounted-foreground = ${colors.filesystem}
-#+end_src
+#+END_SRC
 
 **** Dunst Notification Status
 
 ***** Module
 
-#+begin_src conf :tangle polybar/config.ini
+#+BEGIN_SRC conf :tangle polybar/config.ini
 [module/dunst-notification-status]
 type = custom/script
 
@@ -1534,11 +1552,11 @@ click-right = "/home/sravan/.scripts/dunst.sh --history"
 ; "scroll-(up|down)" will be executed using "/bin/sh -c [command]"
 ; scroll-up =
 ; scroll-down =
-#+end_src
+#+END_SRC
 
 ***** Script
 
-#+begin_src shell :shebang #!/bin/bash :tangle polybar/scripts/dunst-notification-status.sh
+#+BEGIN_SRC shell :shebang #!/bin/bash :tangle polybar/scripts/dunst-notification-status.sh
 # Check if dunst is running
 if pgrep -x "dunst" > /dev/null
 then
@@ -1554,11 +1572,11 @@ else
 fi
 
 echo $status_icon
-#+end_src
+#+END_SRC
 
 *** Launch Script
 
-#+begin_src shell :shebang #!/bin/bash :tangle polybar/launch.sh
+#+BEGIN_SRC shell :shebang #!/bin/bash :tangle polybar/launch.sh
 BAR="mybar"
 CONFIG="~/.xmonad/polybar/config.ini"
 NUM_MONITORS=0
@@ -1593,4 +1611,4 @@ else
 fi
 
 echo "$!" >>/tmp/polybar.pids
-#+end_src
+#+END_SRC
