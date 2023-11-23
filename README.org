@@ -810,7 +810,7 @@ module-margin = ${sizes.module-margin}
 ;   font-3 = FontAwesome:size=10
 ; See the Fonts wiki page for more details
 font-0 = "NotoSans Nerd Font:size=11;3"
-font-1 = "FiraCode Nerd Font:size=11;3"
+font-1 = "MonaspiceNe NF:size=11;3"
 font-2 = "DroidSansM Nerd Font:size=11;3"
 font-3 = "IPAPGothic:size=11;3"
 
