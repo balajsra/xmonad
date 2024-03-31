@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 BAR="mybar"
 CONFIG="~/.xmonad/polybar/config.ini"
 NUM_MONITORS=0

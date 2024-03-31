@@ -1111,7 +1111,7 @@ scroll-down = "/home/sravan/.scripts/playerctl.sh --prev"
 
 ***** Script
 
-#+BEGIN_SRC shell :shebang #!/bin/bash :tangle polybar/scripts/get-media-playing.sh
+#+BEGIN_SRC shell :shebang #!/usr/bin/env bash :tangle polybar/scripts/get-media-playing.sh
 mediaStatus=$(playerctl --player=playerctld metadata 2>&1)
 
 if [[ "$mediaStatus" == "No player could handle this command" ]]; then
@@ -1300,7 +1300,7 @@ click-right = alacritty --hold -e paru -Syu &
 
 ***** Script
 
-#+BEGIN_SRC shell :shebang #!/bin/bash :tangle polybar/scripts/updates-pacman-aurhelper.sh
+#+BEGIN_SRC shell :shebang #!/usr/bin/env bash :tangle polybar/scripts/updates-pacman-aurhelper.sh
 if ! updates_arch=$(checkupdates 2> /dev/null | wc -l ); then
     updates_arch=0
 fi
@@ -1556,7 +1556,7 @@ click-right = "/home/sravan/.scripts/dunst.sh --history"
 
 ***** Script
 
-#+BEGIN_SRC shell :shebang #!/bin/bash :tangle polybar/scripts/dunst-notification-status.sh
+#+BEGIN_SRC shell :shebang #!/usr/bin/env bash :tangle polybar/scripts/dunst-notification-status.sh
 # Check if dunst is running
 if pgrep -x "dunst" > /dev/null
 then
@@ -1576,7 +1576,7 @@ echo $status_icon
 
 *** Launch Script
 
-#+BEGIN_SRC shell :shebang #!/bin/bash :tangle polybar/launch.sh
+#+BEGIN_SRC shell :shebang #!/usr/bin/env bash :tangle polybar/launch.sh
 BAR="mybar"
 CONFIG="~/.xmonad/polybar/config.ini"
 NUM_MONITORS=0

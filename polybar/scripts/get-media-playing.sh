@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 mediaStatus=$(playerctl --player=playerctld metadata 2>&1)
 
 if [[ "$mediaStatus" == "No player could handle this command" ]]; then
